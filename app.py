@@ -9,7 +9,7 @@ from src.utils import load_image
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=str)
 parser.add_argument('--format', default='quick', choices=['quick', 'nerf', 'colmap'])
-parser.add_argument('--type', default='sph', choices=['sph', 'xyz', 'elu', 'c2w', 'w2c'])
+parser.add_argument('--type', default=None, choices=[None, 'sph', 'xyz', 'elu', 'c2w', 'w2c'])
 parser.add_argument('--no_images', action='store_true')
 parser.add_argument('--mesh_path', type=str, default=None)
 parser.add_argument('--image_size', type=int, default=256)

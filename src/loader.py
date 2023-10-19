@@ -12,25 +12,50 @@ def load_quick(root_path, type):
     colors = []
     image_paths = []
 
-    pose_root = os.path.join(root_path, 'poses')
-    print(f'Load poses from {pose_root}')
+    if type is None:
+        pose_path = os.path.join(root_path, 'poses.json')
+        print(f'Load poses from {pose_path}')
+        with open(pose_path, 'r') as fin:
+            jdata = json.load(fin)
+        type = jdata['type']
+        frame_list = jdata['frames']
+    else:
+        pose_root = os.path.join(root_path, 'poses')
+        print(f'Load poses from {pose_root}')
+        frame_list = os.listdir(pose_root)
 
     image_root = os.path.join(root_path, 'images')
     print(f'Load images from {image_root}')
 
-    fname_list = os.listdir(pose_root)
+    for idx, frame in enumerate(frame_list):
 
-    for fname in fname_list:
+        if isinstance(frame, str):
 
-        vals = fname.split('.')
-        fid, ext = vals[0], vals[-1]
+            fname = frame
+            vals = fname.split('.')
+            fid, ext = vals[0], vals[-1]
 
-        fpath = os.path.join(pose_root, fname)
+            fpath = os.path.join(pose_root, fname)
 
-        if ext == 'npy':
-            mat = np.load(fpath)
-        elif ext == 'txt':
-            mat = np.loadtxt(fpath)
+            if ext == 'npy':
+                mat = np.load(fpath)
+            elif ext == 'txt':
+                mat = np.loadtxt(fpath)
+
+            img_paths = [ os.path.join(image_root, f'{fid}.{ext}') for ext in ['png', 'jpg', 'jpeg']]
+            img_paths = [ fpath for fpath in img_paths if os.path.exists(fpath) ]
+
+            img_path = img_paths[0] if len(img_paths) > 0 else None
+
+        elif isinstance(frame, dict):
+
+            if 'image_name' in frame and frame['image_name']:
+                fname = frame['image_name']
+                img_path = os.path.join(image_root, fname)
+            else:
+                img_path = None
+
+            mat = np.array(frame['pose'])
 
         if type == 'c2w':
             c2w = mat
@@ -65,15 +90,9 @@ def load_quick(root_path, type):
             c2w = elu_to_c2w(eye, lookat, up)
 
         poses.append(c2w)
-        legends.append(fid)
+        legends.append( os.path.basename(img_path) if img_path else str(idx) )
         colors.append('blue')
-
-        img_paths = [ os.path.join(image_root, f'{fid}.{ext}') for ext in ['png', 'jpg', 'jpeg']]
-        img_paths = [ fpath for fpath in img_paths if os.path.exists(fpath) ]
-        if len(img_paths) < 1:
-            image_paths.append(None)
-        else:
-            image_paths.append(img_paths[0])
+        image_paths.append(img_path)
 
     return poses, legends, colors, image_paths
 

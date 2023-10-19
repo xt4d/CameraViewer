@@ -40,8 +40,13 @@ def elu_to_c2w(eye, lookat, up):
         up = np.array(up)
 
     l = eye - lookat
+    if np.linalg.norm(l) < 1e-8:
+        l[-1] = 1
     l = l / np.linalg.norm(l)
+
     s = np.cross(l, up)
+    if np.linalg.norm(s) < 1e-8:
+        s[0] = 1
     s = s / np.linalg.norm(s)
     uu = np.cross(s, l)
 

@@ -183,7 +183,7 @@ class CameraVisualizer:
                     name=legend, showlegend=(i == 0)))
 
             # Add label.
-            if cone[0, 2] <= base_radius / 2.0:
+            if cone[0, 2] < 0:
                 fig.add_trace(go.Scatter3d(
                     x=[cone[0, 0]], y=[cone[0, 1]], z=[cone[0, 2] - 0.05], showlegend=False,
                     mode='text', text=legend, textposition='bottom center'))

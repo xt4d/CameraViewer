@@ -2,7 +2,7 @@ import os
 import numpy as np
 import json
 
-from .utils import elu_to_c2w, spherical_to_cartesian, load_image, qvec2rotmat, rotmat
+from .utils import elu_to_c2w, spherical_to_cartesian, load_image, qvec_to_rotmat, rotmat
 
 
 def load_quick(root_path, type):
@@ -28,6 +28,8 @@ def load_quick(root_path, type):
     print(f'Load images from {image_root}')
 
     for idx, frame in enumerate(frame_list):
+
+        fid = idx
 
         if isinstance(frame, str):
 
@@ -90,7 +92,7 @@ def load_quick(root_path, type):
             c2w = elu_to_c2w(eye, lookat, up)
 
         poses.append(c2w)
-        legends.append( os.path.basename(img_path) if img_path else str(idx) )
+        legends.append( os.path.basename(img_path) if img_path else str(fid) )
         colors.append('blue')
         image_paths.append(img_path)
 
@@ -124,8 +126,7 @@ def load_nerf(root_path):
             image_paths.append(os.path.join(root_path, fpath))
         else:
             legends.append(str(fi))
-            images.append(None)
-
+            image_paths.append(None)
 
     return poses, legends, colors, image_paths
 
@@ -162,7 +163,7 @@ def load_colmap(root_path):
 
         qvec = np.array(tuple(map(float, elems[1:5])))
         tvec = np.array(tuple(map(float, elems[5:8])))
-        rot = qvec2rotmat(-qvec)
+        rot = qvec_to_rotmat(-qvec)
         tvec = tvec.reshape(3)
 
         w2c = np.eye(4)

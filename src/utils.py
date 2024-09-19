@@ -73,7 +73,7 @@ def c2w_to_elu(c2w):
     return eye, lookat, up
 
 
-def qvec2rotmat(qvec):
+def qvec_to_rotmat(qvec):
 	return np.array([
 		[
 			1 - 2 * qvec[2]**2 - 2 * qvec[3]**2,
@@ -101,3 +101,34 @@ def rotmat(a, b):
 	s = np.linalg.norm(v)
 	kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
 	return np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2 + 1e-10))
+
+
+def recenter_cameras(c2ws):
+
+    is_list = False
+    if isinstance(c2ws, list):
+        is_list = True
+        c2ws = np.stack(c2ws)
+  
+    center = c2ws[..., :3, -1].mean(axis=0)
+    c2ws[..., :3, -1] = c2ws[..., :3, -1] - center
+
+    if is_list:
+         c2ws = [ c2w for c2w in c2ws ]
+
+    return c2ws
+
+
+def rescale_cameras(c2ws, scale):
+
+    is_list = False
+    if isinstance(c2ws, list):
+        is_list = True
+        c2ws = np.stack(c2ws)
+  
+    c2ws[..., :3, -1] *= scale
+
+    if is_list:
+         c2ws = [ c2w for c2w in c2ws ]
+
+    return c2ws

@@ -111,7 +111,7 @@ class CameraVisualizer:
             self, scene_bounds, 
             base_radius=0.0, zoom_scale=1.0, fov_deg=50., 
             mesh_z_shift=0.0, mesh_scale=1.0, 
-            show_background=False, show_grid=False, show_ticklabels=False   
+            show_background=False, show_grid=False, show_ticklabels=False, y_up=False   
         ):
 
         fig = go.Figure()
@@ -212,9 +212,9 @@ class CameraVisualizer:
                     eye=dict(x=1.5, y=1.5, z=1.0),
                     center=dict(x=0.0, y=0.0, z=0.0),
                     up=dict(x=0.0, y=0.0, z=1.0)),
-                xaxis_title='',
-                yaxis_title='',
-                zaxis_title='',
+                xaxis_title='X',
+                yaxis_title='Z' if y_up else 'Y',
+                zaxis_title='Y' if y_up else 'Z',
                 xaxis=dict(
                     range=[-scene_bounds, scene_bounds],
                     showticklabels=show_ticklabels,

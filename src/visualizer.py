@@ -101,9 +101,17 @@ class CameraVisualizer:
         bit_image = Image.fromarray(raw_image).convert('P', palette='WEB', dither=None)
         # bit_image = Image.fromarray(raw_image.clip(0, 254)).convert(
         #     'P', palette='WEB', dither=None)
-        colorscale = [
-            [i / 255.0, 'rgb({}, {}, {})'.format(*rgb)] for i, rgb in enumerate(idx_to_color)]
-        
+
+        # In latest version of Pillow (10.4.0), getpalette() is modified to always have length 256
+        # This breaks the old colorscale generation code, but this code fixes it
+        # https://github.com/python-pillow/Pillow/issues/7561
+        colorscale = []
+        for i in range(256):
+            rgb = idx_to_color[i] if i < len(idx_to_color) else (0, 0, 0)
+            colorscale.append([i/255.0, "rgb({}, {}, {})".format(*rgb)])
+        # colorscale = [
+        #     [i / 255.0, 'rgb({}, {}, {})'.format(*rgb)] for i, rgb in enumerate(idx_to_color)]
+
         return bit_image, colorscale
 
 

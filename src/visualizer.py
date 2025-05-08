@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 
-def calc_cam_cone_pts_3d(c2w, fov_deg, zoom = 1.0):
+def calc_cam_cone_pts_3d(c2w, fov_deg, zoom = 1.0, camera_axis = '-z'):
 
     fov_rad = np.deg2rad(fov_deg)
 
@@ -13,11 +13,18 @@ def calc_cam_cone_pts_3d(c2w, fov_deg, zoom = 1.0):
     cam_y = c2w[1, -1]
     cam_z = c2w[2, -1]
 
-    corn1 = [np.tan(fov_rad / 2.0), np.tan(fov_rad / 2.0), -1.0]
-    corn2 = [-np.tan(fov_rad / 2.0), np.tan(fov_rad / 2.0), -1.0]
-    corn3 = [-np.tan(fov_rad / 2.0), -np.tan(fov_rad / 2.0), -1.0]
-    corn4 = [np.tan(fov_rad / 2.0), -np.tan(fov_rad / 2.0), -1.0]
-    corn5 = [0, np.tan(fov_rad / 2.0), -1.0]
+    if camera_axis == '+z':
+        z_multiplier = -1
+    elif camera_axis == '-z':
+        z_multiplier = 1
+    else:
+        raise ValueError("Camera axis must be either '+z' or '-z'. It's '-z' by default.")
+    
+    corn1 = [np.tan(fov_rad / 2.0), np.tan(fov_rad / 2.0), z_multiplier*-1.0]
+    corn2 = [-np.tan(fov_rad / 2.0), np.tan(fov_rad / 2.0), z_multiplier*-1.0]
+    corn3 = [-np.tan(fov_rad / 2.0), -np.tan(fov_rad / 2.0), z_multiplier*-1.0]
+    corn4 = [np.tan(fov_rad / 2.0), -np.tan(fov_rad / 2.0), z_multiplier*-1.0]
+    corn5 = [0, np.tan(fov_rad / 2.0), z_multiplier*-1.0]
 
     corn1 = np.dot(c2w[:3, :3], corn1)
     corn2 = np.dot(c2w[:3, :3], corn2)
@@ -56,10 +63,13 @@ def calc_cam_cone_pts_3d(c2w, fov_deg, zoom = 1.0):
 
 class CameraVisualizer:
 
-    def __init__(self, poses, legends, colors, images=None, mesh_path=None, camera_x=1.0):
+    def __init__(self, poses, legends, colors, images=None, mesh_path=None, camera_x=1.0, camera_axis='-z'):
         self._fig = None
 
         self._camera_x = camera_x
+
+        # Boresight axis of the camera.
+        self._camera_axis = camera_axis
         
         self._poses = poses
         self._legends = legends
@@ -140,7 +150,7 @@ class CameraVisualizer:
 
             edges = [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (2, 3), (3, 4), (4, 1), (0, 5)]
 
-            cone = calc_cam_cone_pts_3d(pose, fov_deg)
+            cone = calc_cam_cone_pts_3d(pose, fov_deg, camera_axis=self._camera_axis)
             radius = np.linalg.norm(pose[:3, -1])
 
             if self._bit_images and self._bit_images[i]:

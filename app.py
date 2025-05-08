@@ -17,6 +17,7 @@ parser.add_argument('--scene_size', type=int, default=5)
 parser.add_argument('--y_up', action='store_true')
 parser.add_argument('--recenter', action='store_true')
 parser.add_argument('--rescale', type=float, default=None)
+parser.add_argument('--camera_axis', type=str, default='-z')
 
 args = parser.parse_args()
 
@@ -61,7 +62,7 @@ if not args.no_images:
 
         images.append(load_image(fpath, sz=args.image_size))
 
-viz = CameraVisualizer(poses, legends, colors, images=images)
+viz = CameraVisualizer(poses, legends, colors, images=images, camera_axis=args.camera_axis)
 fig = viz.update_figure(args.scene_size, base_radius=1, zoom_scale=1, show_grid=True, show_ticklabels=True, show_background=True, y_up=args.y_up)
 
 fig.show()

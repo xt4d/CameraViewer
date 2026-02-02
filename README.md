@@ -1,8 +1,9 @@
 # CameraViewer: A lightweight tool for camera pose visualization
 Visualize camera poses in seconds! 
-A python tool that helps plot cameras for 3D computer vision research.
+A tool that helps plot cameras for 3D computer vision research.
 
-<img src="./docs/teaser.png" width=800px/>
+## Web UI
+🚩 CameraViewer is available on the web: [https://xt4d.github.io/CameraViewer](https://xt4d.github.io/CameraViewer/). No installation required, everything runs directly in your browser.
 
 ## Installation
 Create an environment with Python >= 3.9 (Recommend to use [Anaconda](https://www.anaconda.com/download/) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html))

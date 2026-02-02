@@ -6,11 +6,11 @@ from PIL import Image
 def load_image(fpath, sz=256):
     img = Image.open(fpath)
     img = img.resize((sz, sz))
+
     return np.asarray(img)[:, :, :3]
 
 
 def spherical_to_cartesian(sph):
-
     theta, azimuth, radius = sph
 
     return np.array([
@@ -21,7 +21,6 @@ def spherical_to_cartesian(sph):
 
 
 def cartesian_to_spherical(xyz):
-
     xy = xyz[0]**2 + xyz[1]**2
     radius = np.sqrt(xy + xyz[2]**2)
     theta = np.arctan2(np.sqrt(xy), xyz[2])
@@ -31,7 +30,6 @@ def cartesian_to_spherical(xyz):
 
 
 def elu_to_c2w(eye, lookat, up):
-
     if isinstance(eye, list):
         eye = np.array(eye)
     if isinstance(lookat, list):
@@ -63,7 +61,6 @@ def elu_to_c2w(eye, lookat, up):
 
 
 def c2w_to_elu(c2w):
-
     w2c = np.linalg.inv(c2w)
     eye = c2w[:3, 3]
     lookat_dir = -w2c[2, :3]
@@ -100,19 +97,18 @@ def rotmat(a, b):
 		return rotmat(a + np.random.uniform(-1e-2, 1e-2, 3), b)
 	s = np.linalg.norm(v)
 	kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+
 	return np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2 + 1e-10))
 
 
 def recenter_cameras(c2ws):
-
     is_list = False
     if isinstance(c2ws, list):
         is_list = True
         c2ws = np.stack(c2ws)
-  
+
     center = c2ws[..., :3, -1].mean(axis=0)
     c2ws[..., :3, -1] = c2ws[..., :3, -1] - center
-
     if is_list:
          c2ws = [ c2w for c2w in c2ws ]
 
@@ -120,14 +116,12 @@ def recenter_cameras(c2ws):
 
 
 def rescale_cameras(c2ws, scale):
-
     is_list = False
     if isinstance(c2ws, list):
         is_list = True
         c2ws = np.stack(c2ws)
-  
-    c2ws[..., :3, -1] *= scale
 
+    c2ws[..., :3, -1] *= scale
     if is_list:
          c2ws = [ c2w for c2w in c2ws ]
 

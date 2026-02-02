@@ -1,5 +1,4 @@
 import os
-
 from PIL import Image
 import plotly.graph_objects as go
 import numpy as np
@@ -153,11 +152,9 @@ class CameraVisualizer:
 
                 z = np.zeros((H, W)) + base_radius
                 (x, y) = np.meshgrid(np.linspace(-1.0 * self._camera_x, 1.0 * self._camera_x, W), np.linspace(1.0, -1.0, H) * H / W)
-                
-                xyz = np.concatenate([x[..., None], y[..., None], z[..., None]], axis=-1)
 
+                xyz = np.concatenate([x[..., None], y[..., None], z[..., None]], axis=-1)
                 rot_xyz = np.matmul(xyz, pose[:3, :3].T) + pose[:3, -1]
-                
                 x, y, z = rot_xyz[:, :, 0], rot_xyz[:, :, 1], rot_xyz[:, :, 2]
                 
                 fig.add_trace(go.Surface(

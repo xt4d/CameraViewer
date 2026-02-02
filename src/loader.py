@@ -6,7 +6,6 @@ from .utils import elu_to_c2w, spherical_to_cartesian, load_image, qvec_to_rotma
 
 
 def load_quick(root_path, type):
-
     poses = []
     legends = []
     colors = []
@@ -28,17 +27,14 @@ def load_quick(root_path, type):
     print(f'Load images from {image_root}')
 
     for idx, frame in enumerate(frame_list):
-
         fid = idx
 
         if isinstance(frame, str):
-
             fname = frame
             vals = fname.split('.')
             fid, ext = vals[0], vals[-1]
 
             fpath = os.path.join(pose_root, fname)
-
             if ext == 'npy':
                 mat = np.load(fpath)
             elif ext == 'txt':
@@ -50,7 +46,6 @@ def load_quick(root_path, type):
             img_path = img_paths[0] if len(img_paths) > 0 else None
 
         elif isinstance(frame, dict):
-
             if 'image_name' in frame and frame['image_name']:
                 fname = frame['image_name']
                 img_path = os.path.join(image_root, fname)
@@ -79,9 +74,7 @@ def load_quick(root_path, type):
             c2w = elu_to_c2w(eye, lookat, up)
 
         elif type == 'sph' or type == 'xyz':
-
             assert (mat.size == 3)
-    
             if type == 'sph':
                 eye = spherical_to_cartesian((np.deg2rad(mat[0]), np.deg2rad(mat[1]), mat[2]))
             else:
@@ -100,7 +93,6 @@ def load_quick(root_path, type):
 
 
 def load_nerf(root_path):
-
     poses = []
     legends = []
     colors = []
@@ -113,7 +105,6 @@ def load_nerf(root_path):
         jdata = json.load(fin)
 
     for fi, frm in enumerate(jdata['frames']):
-
         c2w = np.array(frm['transform_matrix'])
         poses.append(c2w)
         colors.append('blue')
@@ -132,7 +123,6 @@ def load_nerf(root_path):
 
 
 def load_colmap(root_path):
-
     poses = []
     legends = []
     colors = []
@@ -142,7 +132,6 @@ def load_colmap(root_path):
     print(f'Load poses from {pose_path}')
     
     fin = open(pose_path, 'r')
-
     up = np.zeros(3)
 
     i = 0

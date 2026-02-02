@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CameraViewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.178.0/three.module.js",
+        "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.178.0/examples/jsm/controls/OrbitControls.js",
+        "fflate": "https://unpkg.com/fflate@0.6.7/esm/browser.js"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div>
+          <h1>
+            CameraViewer: 100% browser-side
+            <a href="https://github.com/xt4d/CameraViewer" target="_blank">
+            <img
+              class="stars-badge"
+              alt="GitHub"
+              src="https://img.shields.io/github/stars/xt4d/CameraViewer?style=social"
+            /></a>
+          </h1>
+          <p class="subtitle">
+            (1) Choose a scene folder, (2) Pick a format, (3) Render camera poses in 3D. 
+            <br/>
+            To use your own cameras, please refer to <a href="https://github.com/xt4d/CameraViewer/?tab=readme-ov-file#prepare-cameras-in-quick-format" target="_blank">Quick format</a> perparations.
+          </p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel controls">
+          <div class="panel-header">
+            <h2>Controls</h2>
+          </div>
+
+          <div class="form">
+            <label class="field">
+              <span>Scene folder</span>
+              <div class="picker-row">
+                <button id="choose-folder" class="secondary" type="button">Choose folder</button>
+                <input id="dataset" type="file" webkitdirectory multiple />
+              </div>
+              <small id="dataset-hint">Please choose a scene folder.</small>
+            </label>
+            <div class="scene-examples">[<a href="https://github.com/xt4d/CameraViewer/tree/main/inputs" target="_blank">Scene Examples</a>]</div>
+
+            <div class="field-row">
+              <label class="field">
+                <span>Format</span>
+                <select id="format">
+                  <option value="quick">Quick</option>
+                  <option value="nerf">NeRF</option>
+                  <option value="colmap">COLMAP</option>
+                  <option value="npy">NPY Single</option>
+                </select>
+              </label>
+
+              <label class="field" data-field="pose">
+                <span>Pose Type</span>
+                <select id="pose-type">
+                  <option value="auto">auto (from poses.json)</option>
+                  <option value="sph">spherical (sph)</option>
+                  <option value="xyz">cartesian (xyz)</option>
+                  <option value="elu">eye / look-at / up (elu)</option>
+                  <option value="c2w">camera-to-world (c2w)</option>
+                  <option value="w2c">world-to-camera (w2c)</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button id="render" class="primary" type="button">Render Scene</button>
+              <button id="reset" class="ghost" type="button">Reset</button>
+            </div>
+
+            <div class="details-grid">
+              <label class="field">
+                <span>Coordinate System</span>
+                <div class="radio-group">
+                  <label class="radio">
+                    <input type="radio" name="coord-system" value="opengl" checked />
+                    <span>OpenGL</span>
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="coord-system" value="opencv" />
+                    <span>OpenCV</span>
+                  </label>
+                </div>
+              </label>
+              <label class="field">
+                <span>Scene Size</span>
+                <input id="scene-size" type="number" min="0.01" value="5.0" />
+              </label>
+              <div class="field switch-field">
+                <span>Camera Recenter</span>
+                <button
+                  id="recenter"
+                  class="switch-control"
+                  type="button"
+                  role="switch"
+                  aria-checked="false"
+                >
+                <span class="slider" aria-hidden="true"></span>
+                </button>
+              </div>
+              <label class="field">
+                <span>Camera Rescale</span>
+                <input id="rescale" type="number" min="0.01" value="1.0" />
+              </label>
+              <label class="field">
+                <select id="up-axis">
+                  <option value="x-up">X-up</option>
+                  <option value="x-down">X-down</option>
+                  <option value="y-up">Y-up</option>
+                  <option value="y-down">Y-down</option>
+                  <option value="z-up" selected>Z-up</option>
+                  <option value="z-down">Z-down</option>
+                </select>
+              </label>
+              <label class="toggle">
+                <input id="show-axes" type="checkbox" checked />
+                <span>Show Axes</span>
+              </label>
+              <label class="toggle">
+                <input id="show-grid" type="checkbox" checked />
+                <span>Show Plane</span>
+              </label>
+              <label class="field">
+                <span>Image Size</span>
+                <input id="image-size" type="number" min="32" max="1024" value="128" />
+              </label>
+              <label class="toggle">
+                <input id="show-images" type="checkbox" checked />
+                <span>Show Images</span>
+              </label>
+            </div>
+
+          </div>
+
+        </section>
+
+        <section class="panel viewer">
+          <div class="panel-header">
+            <h2>Viewer</h2>
+          </div>
+          <div id="errors" class="alert" hidden></div>
+
+          <div id="plot" class="plot">
+            <div class="placeholder">
+              <p>Render a scene to see the interactive plot here.</p>
+              <span>Use the mouse to orbit, pan, and zoom.</span>
+            </div>
+          </div>
+
+          <div id="status" class="status"></div>
+          <div class="status">
+            Hint:<br/>
+            Not seeing cameras? Confirm "Format" and "Pose Type", then enable "Camera Recenter".<br/>
+            Too sparse? Decrease "Camera Rescale".<br/>
+            Too dense? Increase "Camera Rescale".<br/>
+          </div>
+        </section>
+      </main>
+    </div>
+    <footer class="footnote">CameraViewer WebUI v0.1 - My human:&nbsp;<a href="https://cheng.website" target="_blank">weihao</a></footer>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
